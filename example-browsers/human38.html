@@ -12,9 +12,9 @@
 
 <script language="javascript">
 var b = new Browser({
-   chr:                 '22',
-    viewStart:           30300000,
-    viewEnd:             30500000,
+   chr:                 '7',
+    viewStart:           706430,
+    viewEnd:             816430,
     cookieKey:           'human-grc_h38',
 
     coordSystem: {
@@ -63,18 +63,16 @@ var b = new Browser({
                         bwgURI: 'http://www.biodalliance.org/datasets/GRCh38/repeats.bb',
                         stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats2.xml'}
 
-                      ,{name: 'SNPs',
-                        tier_type: 'ensembl',
-                        species:'human',
-                        type: 'variation',
-                        disabled: true,
-                        featureInfoPlugin: function(f, info) {
-                          if (f.id) {
-                            info.add('SNP', makeElement('a', f.id, {href: 'http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + f.id, target: '_newtab'}));
-                          }
-                        }
-                       }
+                      ,{
 
+                            name:'molgenis',
+                            uri:'http://localhost:8080/api/genomebrowser/BMB_Workshop_2015',
+                            tier_type:'ensembl',
+                            species:'human',
+                            type:['variation'],
+                            attrs:"REF:Ref allele,ALT:Alt allele,AMR_AF:AMR_AF,NS:NS",
+                            labelAttr:"AFR_AF"
+                            }
     ],
 
     prefix: '../',

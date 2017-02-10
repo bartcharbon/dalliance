@@ -135,10 +135,10 @@ Browser.prototype.featurePopup = function(ev, __ignored_feature, hit, tier) {
         for (var ni = 0; ni < notes.length; ++ni) {
             var k = 'Note';
             var v = notes[ni];
-            var m = v.match(TAGVAL_NOTE_RE);
-            if (m) {
-                k = m[1];
-                v = m[2];
+            var m = v.split("=");
+            if (m.length === 2) {
+                k = m[0];
+                v = m[1];
             }
 
             var row = makeElement('tr', [

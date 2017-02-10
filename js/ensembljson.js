@@ -26,7 +26,7 @@ if (typeof(require) !== 'undefined') {
 function EnsemblFeatureSource(source) {
     FeatureSourceBase.call(this);
     this.source = source;
-    this.base = source.uri || '//rest.ensembl.org';
+    this.base = source.uri || '//localhost:8080/api/v2/';
     if (this.base.indexOf('//') === 0) {
         var proto = window.location.protocol;
         if (proto == 'http:' || proto == 'https:') {
@@ -185,7 +185,8 @@ EnsemblFeatureSource.prototype.getScales = function() {
 
 EnsemblFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
     var thisB = this;
-    var url = this.base + '/overlap/region/' + this.species + '/' + chr + ':' + min + '-' + max;
+    var source = this.source;
+    var url = this.base + '/' + chr + '-' + min + '-' + max + '/';
 
     var filters = [];
     for (var ti = 0; ti < this.type.length; ++ti) {
@@ -212,17 +213,24 @@ EnsemblFeatureSource.prototype.fetch = function(chr, min, max, scale, types, poo
     		    callback(err, null);
     	    } else {
         		var jf = JSON.parse(req.response);
+        		var items = jf.items;
         		var features = [];
-        		for (var fi = 0; fi < jf.length; ++fi) {
-        		    var j = jf[fi];
-
+        		for (var fi = 0; fi < items.length; ++fi) {
+        		    var j = items[fi];
         		    var notes = [];
         		    var f = new DASFeature();
         		    f.segment = chr;
-        		    f.min = j['start'] | 0;
-        		    f.max = j['end'] | 0;
+        		    f.min = j['POS'] | 0;
+        		    f.max = j['POS'] | 0;
         		    f.type = j.feature_type || 'unknown';
-        		    f.id = j.ID;
+                    console.log("????");
+                    var identifier;
+                    if(source["labelAttr"]){
+                        identifier = source["labelAttr"];
+                    }else{
+                        identifier = "ID";
+                    }
+        		    f.id = j[identifier];
 
                     if (j.Parent) {
                         var grp = new DASGroup();
@@ -241,14 +249,23 @@ EnsemblFeatureSource.prototype.fetch = function(chr, min, max, scale, types, poo
                         f.method = j.consequence_type;
 
                     if (j.alt_alleles) {
-                        notes.push('Alleles=' + j.alt_alleles.join('/'));
+                        notes.push('Alleles=' + j.ALT.join('/'));
                         if (j.alt_alleles.length > 1) {
                             if (j.alt_alleles[1].length != j.alt_alleles[0].length || j.alt_alleles[1] == '-') {
                                 f.type = 'indel';
                             }
                         }
                     }
-        		    
+
+                    if (source.attrs) {
+                        var attrs = source.attrs.split(",");
+                        for (var index = 0; index < attrs.length; ++index) {
+                            var attr = attrs[index];
+                            var attrArray = attr.split(":");
+                            notes.push(attrArray[1] + '=' + j[attrArray[0]]);
+                        }
+                    }
+
                     if (notes.length > 0) {
                         f.notes = notes;
                     }
