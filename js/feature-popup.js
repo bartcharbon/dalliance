@@ -22,7 +22,7 @@ if (typeof(require) !== 'undefined') {
 
 var TAGVAL_NOTE_RE = new RegExp('^([A-Za-z_-]+)=(.+)');
 
-Browser.prototype.addFeatureInfoPlugin = function(handler) {
+Browser.prototype.addFeatureInfoPlugin = function (handler) {
     if (!this.featureInfoPlugins) {
         this.featureInfoPlugins = [];
     }
@@ -43,18 +43,18 @@ function FeatureInfo(hit, feature, group) {
     this.sections = [];
 }
 
-FeatureInfo.prototype.setTitle = function(t) {
+FeatureInfo.prototype.setTitle = function (t) {
     this.title = t;
 }
 
-FeatureInfo.prototype.add = function(label, info) {
+FeatureInfo.prototype.add = function (label, info) {
     if (typeof info === 'string') {
         info = makeElement('span', info);
     }
     this.sections.push({label: label, info: info});
 }
 
-Browser.prototype.featurePopup = function(ev, __ignored_feature, hit, tier) {
+Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
     var hi = hit.length;
     var feature = --hi >= 0 ? hit[hi] : {};
     var group = --hi >= 0 ? hit[hi] : {};
@@ -122,7 +122,7 @@ Browser.prototype.featurePopup = function(ev, __ignored_feature, hit, tier) {
         if (links && links.length > 0) {
             var row = makeElement('tr', [
                 makeElement('th', 'Links'),
-                makeElement('td', links.map(function(l) {
+                makeElement('td', links.map(function (l) {
                     return makeElement('div', makeElement('a', l.desc, {href: l.uri, target: '_new'}));
                 }))
             ]);
@@ -155,8 +155,22 @@ Browser.prototype.featurePopup = function(ev, __ignored_feature, hit, tier) {
         table.appendChild(makeElement('tr', [
             makeElement('th', section.label),
             makeElement('td', section.info)]));
-    }        
+    }
 
+    console.log("feature: " + feature);
+
+    if (feature.action) {
+
+        var actionItem = makeElement('a', 'Action!');
+
+        actionItem.addEventListener('click', function(ev) {
+            feature.action(feature.id);
+        }, false);
+
+        table.appendChild(makeElement('tr', [
+            makeElement('th', ""),
+            actionItem]));
+    }
     this.popit(ev, featureInfo.title || 'Feature', table, {width: 450});
 }
 

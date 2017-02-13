@@ -265,6 +265,9 @@ EnsemblFeatureSource.prototype.fetch = function(chr, min, max, scale, types, poo
                             notes.push(attrArray[1] + '=' + j[attrArray[0]]);
                         }
                     }
+                    if(source.action){
+                        f.action = source.action;
+                    }
 
                     if (notes.length > 0) {
                         f.notes = notes;

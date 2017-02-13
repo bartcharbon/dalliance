@@ -62,17 +62,25 @@ var b = new Browser({
                         desc: 'Repeat annotation from UCSC', 
                         bwgURI: 'http://www.biodalliance.org/datasets/GRCh38/repeats.bb',
                         stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats2.xml'}
-
                       ,{
-
-                            name:'molgenis',
-                            uri:'http://localhost:8080/api/genomebrowser/BMB_Workshop_2015',
-                            tier_type:'ensembl',
-                            species:'human',
-                            type:['variation'],
-                            attrs:"REF:Ref allele,ALT:Alt allele,AMR_AF:AMR_AF,NS:NS",
-                            labelAttr:"AFR_AF"
-                            }
+                                name:'molgenis',
+                                uri:'http://localhost:8080/api/genomebrowser/BMB_Workshop_2015',
+                                tier_type:'ensembl',
+                                species:'human',
+                                type:['variation'],
+                                attrs:"REF:Ref allele,ALT:Alt allele,AMR_AF:AMR_AF,NS:NS",
+                                labelAttr:"REF",
+                                action:function (id) {alert("actions1: "+id)}
+                            },{
+            name:'molgenis',
+            uri:'http://localhost:8080/api/genomebrowser/BMB_Workshop_2015',
+            tier_type:'ensembl',
+            species:'human',
+            type:['variation'],
+            attrs:"REF:Ref allele,ALT:Alt allele,AMR_AF:AMR_AF,NS:NS",
+            labelAttr:"REF",
+            action:function (id) {alert("actions1: "+id)}
+        }
     ],
 
     prefix: '../',
