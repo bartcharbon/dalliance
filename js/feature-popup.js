@@ -135,11 +135,13 @@ Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
         for (var ni = 0; ni < notes.length; ++ni) {
             var k = 'Note';
             var v = notes[ni];
+            //---START MOLGENIS CUSTOM CODE---
             var m = v.split("=");
             if (m.length === 2) {
                 k = m[0];
                 v = m[1];
             }
+            //---END MOLGENIS CUSTOM CODE---
 
             var row = makeElement('tr', [
                 makeElement('th', k),
@@ -156,11 +158,8 @@ Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
             makeElement('th', section.label),
             makeElement('td', section.info)]));
     }
-
-    console.log("feature: " + feature);
-
+    //---START MOLGENIS CUSTOM CODE---
     if (feature.action) {
-
         var actionItem = makeElement('a', 'Action!');
 
         actionItem.addEventListener('click', function(ev) {
@@ -169,8 +168,9 @@ Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
 
         table.appendChild(makeElement('tr', [
             makeElement('th', ""),
-            actionItem]));
+            makeElement('td',actionItem)]));
     }
+    //---END MOLGENIS CUSTOM CODE---
     this.popit(ev, featureInfo.title || 'Feature', table, {width: 450});
 }
 

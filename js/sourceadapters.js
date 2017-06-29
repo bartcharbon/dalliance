@@ -1683,6 +1683,9 @@ if (typeof(module) !== 'undefined') {
 
     // Standard set of plugins.
     require('./ensembljson');
+    //---START MOLGENIS CUSTOM CODE---
+    require('./molgenisjson');
+    //---END MOLGENIS CUSTOM CODE---
     require('./tabix-source');
     require('./memstore');
     require('./bedwig');
