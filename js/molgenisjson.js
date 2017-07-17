@@ -21,8 +21,6 @@ if (typeof(require) !== 'undefined') {
     var DASGroup = das.DASGroup;
 }
 
-
-
 function MolgenisFeatureSource(source) {
     FeatureSourceBase.call(this);
     this.source = source;
@@ -50,132 +48,106 @@ MolgenisFeatureSource.prototype.constructor = MolgenisFeatureSource;
 MolgenisFeatureSource.prototype.getStyleSheet = function(callback) {
     var stylesheet = new DASStylesheet();
 
-    var tsStyle = new DASStyle();
-    tsStyle.glyph = '__NONE';
-    if (this.type.indexOf('exon') >= 0)
-        stylesheet.pushStyle({type: 'transcript'}, null, tsStyle);
-    if (this.type.indexOf('exon') >= 0 || this.type.indexOf('transcript') >= 0)
-        stylesheet.pushStyle({type: 'gene'}, null, tsStyle);
-
-    var cdsStyle = new DASStyle();
-    cdsStyle.glyph = 'BOX';
-    cdsStyle.FGCOLOR = 'black';
-    cdsStyle.BGCOLOR = 'red'
-    cdsStyle.HEIGHT = 8;
-    cdsStyle.BUMP = true;
-    cdsStyle.LABEL = true;
-    cdsStyle.ZINDEX = 10;
-    stylesheet.pushStyle({type: 'cds'}, null, cdsStyle);
-
     {
         var varStyle = new DASStyle();
-        varStyle.glyph = 'SQUARE';
+        varStyle.glyph = 'TEXT';
+        varStyle.STRING = 'A';
         varStyle.BUMP = 'yes';
         varStyle.LABEL = 'no';
-        // varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'blue';
-        stylesheet.pushStyle({type: 'variation', method: '.+_UTR_variant'}, null, varStyle);
-    }
-    {
-        var varStyle = new DASStyle();
-        varStyle.glyph = 'TRIANGLE';
-        varStyle.DIRECTION = 'S';
-        varStyle.BUMP = 'yes';
-        varStyle.LABEL = 'no';
-        // varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'blue';
-        stylesheet.pushStyle({type: 'variation', method: 'missense_variant'}, null, varStyle);
-    }
-    {
-        var varStyle = new DASStyle();
-        varStyle.glyph = 'TRIANGLE';
-        varStyle.DIRECTION = 'N';
-        varStyle.BUMP = 'yes';
-        varStyle.LABEL = 'no';
-        // varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'blue';
-        stylesheet.pushStyle({type: 'variation', method: 'splice_.+_variant'}, null, varStyle);
-    }
-    {
-        var varStyle = new DASStyle();
-        varStyle.glyph = 'STAR';
-        varStyle.POINTS = 6;
-        varStyle.BUMP = 'yes';
-        varStyle.LABEL = 'no';
-        // varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'blue';
-        stylesheet.pushStyle({type: 'variation', method: 'regulatory_region_variant'}, null, varStyle);
-    }
-    {
-        var varStyle = new DASStyle();
-        varStyle.glyph = 'PLIMSOLL';
-        varStyle.BUMP = 'yes';
-        varStyle.LABEL = 'no';
-        // varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'rgb(50,80,255)';
-        varStyle.STROKECOLOR = 'black';
-        stylesheet.pushStyle({type: 'variation'}, null, varStyle);
-    }
-        {
-        var varStyle = new DASStyle();
-        varStyle.glyph = 'SQUARE';
-        varStyle.BUMP = 'yes';
-        varStyle.LABEL = 'no';
-        varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'red';
-        stylesheet.pushStyle({type: 'indel', method: '.+_UTR_variant'}, null, varStyle);
-    }
-    {
-        var varStyle = new DASStyle();
-        varStyle.glyph = 'TRIANGLE';
-        varStyle.DIRECTION = 'S';
-        varStyle.BUMP = 'yes';
-        varStyle.LABEL = 'no';
-        varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'red';
-        stylesheet.pushStyle({type: 'indel', method: 'missense_variant'}, null, varStyle);
-    }
-    {
-        var varStyle = new DASStyle();
-        varStyle.glyph = 'TRIANGLE';
-        varStyle.DIRECTION = 'N';
-        varStyle.BUMP = 'yes';
-        varStyle.LABEL = 'no';
-        varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'red';
-        stylesheet.pushStyle({type: 'indel', method: 'splice_.+_variant'}, null, varStyle);
+        varStyle.FGCOLOR = 'green';
+        stylesheet.pushStyle({type: 'variant', method: 'A'}, null, varStyle);
     }
     {
         var varStyle = new DASStyle();
         varStyle.glyph = 'TEXT';
-        varStyle.STRING = "Q";
-        varStyle.POINTS = 6;
+        varStyle.STRING = 'C';
         varStyle.BUMP = 'yes';
         varStyle.LABEL = 'no';
-        varStyle.BGCOLOR = '#888888';
-        varStyle.FGCOLOR = 'red';
-        stylesheet.pushStyle({type: 'indel', method: 'regulatory_region_variant'}, null, varStyle);
+        varStyle.FGCOLOR = 'blue';
+        stylesheet.pushStyle({type: 'variant', method: 'C'}, null, varStyle);
     }
     {
         var varStyle = new DASStyle();
-        varStyle.glyph = 'PLIMSOLL';
+        varStyle.glyph = 'TEXT';
+        varStyle.STRING = 'G';
         varStyle.BUMP = 'yes';
         varStyle.LABEL = 'no';
-        varStyle.BGCOLOR = '#888888';
+        varStyle.FGCOLOR = 'orange';
+        stylesheet.pushStyle({type: 'variant', method: 'G'}, null, varStyle);
+    }
+    {
+        var varStyle = new DASStyle();
+        varStyle.glyph = 'TEXT';
+        varStyle.STRING = 'T';
+        varStyle.BUMP = 'yes';
+        varStyle.LABEL = 'no';
         varStyle.FGCOLOR = 'red';
-        varStyle.STROKECOLOR = 'black';
+        stylesheet.pushStyle({type: 'variant', method: 'T'}, null, varStyle);
+    }
+    {
+        var varStyle = new DASStyle();
+        varStyle.glyph = 'TEXT';
+        varStyle.STRING = '?';
+        varStyle.BUMP = 'yes';
+        varStyle.LABEL = 'no';
+        varStyle.FGCOLOR = 'darkgrey';
+        stylesheet.pushStyle({type: 'variant', method: 'unknown'}, null, varStyle);
+    }
+    {
+        var varStyle = new DASStyle();
+        varStyle.glyph = 'DOT';
+        varStyle.BUMP = 'yes';
+        varStyle.LABEL = 'no';
+        varStyle.FGCOLOR = 'purple';
         stylesheet.pushStyle({type: 'indel'}, null, varStyle);
     }
+    {
+        var varStyle = new DASStyle();
+        varStyle.glyph = 'STAR';
+        varStyle.BUMP = 'yes';
+        varStyle.LABEL = 'no';
+        varStyle.FGCOLOR = 'black';
+        stylesheet.pushStyle({type: 'variant', method: 'multiple'}, null, varStyle);
+    }
+    {
+        var wigStyle = new DASStyle();
+        wigStyle.glyph = 'BOX';
+        wigStyle.FGCOLOR = 'blue';
+        wigStyle.BGCOLOR = 'blue'
+        wigStyle.HEIGHT = 8;
+        wigStyle.BUMP = true;
+        wigStyle.LABEL = true;
+        wigStyle.ZINDEX = 20;
+        stylesheet.pushStyle({type: 'default'}, null, wigStyle);
+    }
+    {
+        var wigStyle = new DASStyle();
+        wigStyle.glyph = 'BOX';
+        wigStyle.FGCOLOR = 'red';
+        wigStyle.BGCOLOR = 'red'
+        wigStyle.HEIGHT = 8;
+        wigStyle.LABEL = true;
+        wigStyle.ZINDEX = 20;
+        stylesheet.pushStyle({type: 'exon', method: 'exon'}, null, wigStyle);
+    }
+    {
+        var wigStyle = new DASStyle();
+        wigStyle.glyph = 'BOX';
+        wigStyle.FGCOLOR = 'white';
+        wigStyle.BGCOLOR = 'white'
+        wigStyle.HEIGHT = 8;
+        wigStyle.LABEL = true;
+        wigStyle.ZINDEX = 20;
+        stylesheet.pushStyle({type: 'exon', method: 'intron'}, null, wigStyle);
+    }
+    {
+        var varStyle = new DASStyle();
+        varStyle.glyph = 'HISTOGRAM';
+        varStyle.BGCOLOR = 'blue';
+        varStyle.HEIGHT = 50;
+        stylesheet.pushStyle({type: 'numeric'}, null, varStyle);
+    }
 
-    var wigStyle = new DASStyle();
-    wigStyle.glyph = 'BOX';
-    wigStyle.FGCOLOR = 'black';
-    wigStyle.BGCOLOR = 'orange'
-    wigStyle.HEIGHT = 8;
-    wigStyle.BUMP = true;
-    wigStyle.LABEL = true;
-    wigStyle.ZINDEX = 20;
-    stylesheet.pushStyle({type: 'default'}, null, wigStyle);
     return callback(stylesheet);
 }
 
@@ -185,32 +157,28 @@ MolgenisFeatureSource.prototype.getScales = function() {
 }
 
 MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, pool, callback) {
-    //TODO: something with types
-
     var thisB = this;
     var source = this.source;
 
+    if(!source.genome_attrs.chr || !source.genome_attrs.pos){
+        throw new Error("Bad molgenis track configuration: please specify 'genome_attrs.chr' and 'genome_attrs.pos'");
+    }
+
+    var url = this.base;
+
     var attributes = [];
     if (source.attrs) {
-        var attrs = source.attrs.split(",");
-        for (var index = 0; index < attrs.length; ++index) {
-            var attr = attrs[index];
+        for (var index = 0; index < source.attrs.length; ++index) {
+            var attr = source.attrs[index];
             var attrArray = attr.split(":");
             attributes.push(attrArray[0]);
         }
+        url += 'attrs='+encodeURIComponent(attributes);
     }
 
-    var url = this.base + '/?attrs='+encodeURIComponent(attributes)+'&q='+encodeURIComponent('#CHROM')+'=='+ chr + ';POS=ge=' + min + ';POS=le=' + max;
-    //FIXME:add optional query?
+    //TODO:add optional query?
+    url += '&q='+encodeURIComponent(source.genome_attrs.chr)+'=='+ chr + ';'+source.genome_attrs.pos+'=ge=' + min + ';'+source.genome_attrs.pos+'=le=' + max;
 
-    var filters = [];
-    for (var ti = 0; ti < this.type.length; ++ti) {
-        filters.push('feature=' + this.type[ti]);
-    }
-    filters.push('content-type=application/json');
-    //url = url + '?' + filters.join(';');
-    console.log("filters: " + filters);
-    //http://localhost:8080/api/v2/gb
 
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
@@ -233,69 +201,56 @@ MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, po
         		var items = jf.items;
         		var features = [];
         		for (var fi = 0; fi < items.length; ++fi) {
-        		    var j = items[fi];
-        		    var notes = [];
-        		    var f = new DASFeature();
-        		    f.segment = chr;
-        		    f.min = j['POS'] | 0;
-        		    f.max = j['POS'] | 0;
-        		    f.type = j.feature_type || 'unknown';
+                    var entity = items[fi];
+                    var notes = [];
+                    var feature = new DASFeature();
+                    feature.segment = chr;
+                    feature.min = entity[source.genome_attrs.pos] | 0;
+                    if(source.genome_attrs.stop)
+                    {
+                        feature.max = entity[source.genome_attrs.stop] | 0;
+                    }
+                    else{
+                        feature.max = entity[source.genome_attrs.pos] | 0;
+                    }
+
+                    feature.type = entity.feature_type || 'unknown';
                     var identifier;
-                    if(source["labelAttr"]){
-                        identifier = source["labelAttr"];
-                    }else{
+                    if (source.label_attr) {
+                        identifier = source.label_attr;
+                    } else {
                         identifier = "ID";
                     }
-        		    f.id = j[identifier];
-
-                    if (j.Parent) {
-                        var grp = new DASGroup();
-                        grp.id = j.Parent;
-                        f.groups = [grp];
-                    }
-
-                    if (j.strand) {
-                        if (j.strand < 0) 
-                            f.orientation = '-';
-                        else if (j.strand > 0) 
-                            f.orientation = '+';
-                    }
-
-                    if (j.consequence_type)
-                        f.method = j.consequence_type;
-
-                    if (j.alt_alleles) {
-                        notes.push('Alleles=' + j.ALT.join('/'));
-                        if (j.alt_alleles.length > 1) {
-                            if (j.alt_alleles[1].length != j.alt_alleles[0].length || j.alt_alleles[1] == '-') {
-                                f.type = 'indel';
-                            }
-                        }
-                    }
+                    feature.id = entity[identifier];
 
                     //add attrs to notes for use in popup
                     if (source.attrs) {
-                        var attrs = source.attrs.split(",");
-                        for (var index = 0; index < attrs.length; ++index) {
-                            var attr = attrs[index];
+                        for (var index = 0; index < source.attrs.length; ++index) {
+                            var attr = source.attrs[index];
                             var attrArray = attr.split(":");
-                            notes.push(attrArray[1] + '=' + j[attrArray[0]]);
+
+                            var label = attrArray[1];
+                            var value = entity[attrArray[0]];
+
+                            notes.push(label + '=' + value);
                         }
                     }
-                    if(source.action){
-                        f.action = source.action;
+                    if (source.actions) {
+                        feature.actions = eval(source.actions);
+                        feature.entity = entity;
                     }
 
                     if (notes.length > 0) {
-                        f.notes = notes;
+                        feature.notes = notes;
                     }
-                    if(j.ALT === "G"){
-                        f.type = "indel";
-                        f.method = "regulatory_region_variant";
-                    }else {
-                        f.type = "variant";
+
+                    if(source.track_type === "numeric") {
+                        feature.score = entity[source.score_attr];
                     }
-        		    features.push(f);
+
+                    setStyleProperties(entity, feature, source);
+                    feature.molgenis = true;
+        		    features.push(feature);
         		}
         		callback(null, features);
     	    }
@@ -309,6 +264,68 @@ MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, po
     req.open('GET', url, true);
     req.responseType = 'text';
     req.send('');
+}
+
+function setStyleProperties(entity, feature, source) {
+
+    var type = source.track_type;
+    var altAttr = source.genome_attrs.alt;
+    if(type === "numeric"){
+        feature.type = "numeric";
+        return;
+    }
+    if(type === "exon") {
+        var labelAttr = source.label_attr;
+        if (entity[labelAttr].search(source.exon_key) != -1) {
+            feature.type = "exon";
+            feature.method = "exon";
+            return;
+        }
+        else{
+            feature.type = "exon";
+            feature.method = "intron";
+            return;
+        }
+    }
+    else if(altAttr) {
+        if (entity[altAttr] === 'A') {
+            feature.type = "variant";
+            feature.method = "A";
+            return;
+        }
+        else if (entity[altAttr] === 'T') {
+            feature.type = "variant";
+            feature.method = "T";
+            return;
+        }
+        else if (entity[altAttr] === 'G') {
+            feature.type = "variant";
+            feature.method = "G";
+            return;
+        }
+        else if (entity[altAttr] === 'C') {
+            feature.type = "variant";
+            feature.method = "C";
+            return;
+        }
+        else if (entity[altAttr].search(',') != -1) {
+            feature.type = "variant";
+            feature.method = "multiple";
+            return;
+        }
+        else if (entity[altAttr].length > 1 || entity.REF.length > 1) {
+            feature.type = "indel";
+            return;
+        }
+        else {
+            feature.type = "variant";
+            feature.method = "unknown";
+            return;
+        }
+    }else{
+        feature.type = "default";
+        return;
+    }
 }
 
 dalliance_registerSourceAdapterFactory('molgenis', function(source) {

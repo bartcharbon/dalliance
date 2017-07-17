@@ -39,7 +39,7 @@ function FeatureInfo(hit, feature, group) {
     this.hit = hit;
     this.feature = feature;
     this.group = group;
-    this.title = name;
+    this.title = name;//FIXME: fix
     this.sections = [];
 }
 
@@ -55,6 +55,7 @@ FeatureInfo.prototype.add = function (label, info) {
 }
 
 Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
+    //FIXME: add "isMolgenis checks"
     var hi = hit.length;
     var feature = --hi >= 0 ? hit[hi] : {};
     var group = --hi >= 0 ? hit[hi] : {};
@@ -136,6 +137,11 @@ Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
             var k = 'Note';
             var v = notes[ni];
             //---START MOLGENIS CUSTOM CODE---
+            //params: do not rename, because this will make merging with dalliance changes harder
+            //v is note
+            //m is splitted note into array [key,value]
+            //k is key
+            //v is value
             var m = v.split("=");
             if (m.length === 2) {
                 k = m[0];
@@ -159,16 +165,19 @@ Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
             makeElement('td', section.info)]));
     }
     //---START MOLGENIS CUSTOM CODE---
-    if (feature.action) {
-        var actionItem = makeElement('a', 'Action!');
+    if (feature.actions) {
+        for (var index = 0; index < feature.actions.length; ++index) {
+            let action = feature.actions[index]
+            let actionItem = makeElement('a', action.label);
 
-        actionItem.addEventListener('click', function(ev) {
-            feature.action(feature.id);
-        }, false);
+            actionItem.addEventListener('click', function (ev) {
+                eval(action.run);
+            }, false);
 
-        table.appendChild(makeElement('tr', [
-            makeElement('th', ""),
-            makeElement('td',actionItem)]));
+            table.appendChild(makeElement('tr', [
+                makeElement('th', ""),
+                makeElement('td', actionItem)]));
+        }
     }
     //---END MOLGENIS CUSTOM CODE---
     this.popit(ev, featureInfo.title || 'Feature', table, {width: 450});
