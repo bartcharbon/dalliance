@@ -160,7 +160,7 @@ MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, po
     var thisB = this;
     var source = this.source;
 
-    if(!source.genome_attrs.chr || !source.genome_attrs.pos){
+    if (!source.genome_attrs.chr || !source.genome_attrs.pos) {
         throw new Error("Bad molgenis track configuration: please specify 'genome_attrs.chr' and 'genome_attrs.pos'");
     }
 
@@ -173,12 +173,15 @@ MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, po
             var attrArray = attr.split(":");
             attributes.push(attrArray[0]);
         }
-        url += 'attrs='+encodeURIComponent(attributes);
+        url += '&attrs=' + encodeURIComponent(attributes);
     }
 
     //TODO:add optional query?
-    url += '&q='+encodeURIComponent(source.genome_attrs.chr)+'=='+ chr + ';'+source.genome_attrs.pos+'=ge=' + min + ';'+source.genome_attrs.pos+'=le=' + max;
-
+    if (source.genome_attrs.stop) {
+        url += '&q=' + encodeURIComponent(source.genome_attrs.chr) + '==' + chr + ';(' + source.genome_attrs.pos + '=ge=' + min + ';' + source.genome_attrs.pos + '=le=' + max + ',' + source.genome_attrs.stop + '=ge=' + min + ';' + source.genome_attrs.stop + '=le=' + max + ')';
+    } else {
+        url += '&q=' + encodeURIComponent(source.genome_attrs.chr) + '==' + chr + ';' + source.genome_attrs.pos + '=ge=' + min + ';' + source.genome_attrs.pos + '=le=' + max;
+    }
 
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
