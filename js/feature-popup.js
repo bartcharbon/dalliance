@@ -39,7 +39,7 @@ function FeatureInfo(hit, feature, group) {
     this.hit = hit;
     this.feature = feature;
     this.group = group;
-    this.title = name;//FIXME: fix
+    this.title = hit[0].molgenis ? feature.id : name;
     this.sections = [];
 }
 
@@ -55,7 +55,6 @@ FeatureInfo.prototype.add = function (label, info) {
 }
 
 Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
-    //FIXME: add "isMolgenis checks"
     var hi = hit.length;
     var feature = --hi >= 0 ? hit[hi] : {};
     var group = --hi >= 0 ? hit[hi] : {};
@@ -142,10 +141,12 @@ Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
             //m is splitted note into array [key,value]
             //k is key
             //v is value
-            var m = v.split("=");
-            if (m.length === 2) {
-                k = m[0];
-                v = m[1];
+            if (hit[0].molgenis) {
+                var m = v.split("=");
+                if (m.length === 2) {
+                    k = m[0];
+                    v = m[1];
+                }
             }
             //---END MOLGENIS CUSTOM CODE---
 
@@ -165,18 +166,20 @@ Browser.prototype.featurePopup = function (ev, __ignored_feature, hit, tier) {
             makeElement('td', section.info)]));
     }
     //---START MOLGENIS CUSTOM CODE---
-    if (feature.actions) {
-        for (var index = 0; index < feature.actions.length; ++index) {
-            let action = feature.actions[index]
-            let actionItem = makeElement('a', action.label);
+    if(hit[0].molgenis) {
+        if (feature.actions) {
+            for (var index = 0; index < feature.actions.length; ++index) {
+                let action = feature.actions[index]
+                let actionItem = makeElement('a', action.label);
 
-            actionItem.addEventListener('click', function (ev) {
-                eval(action.run);
-            }, false);
+                actionItem.addEventListener('click', function (ev) {
+                    eval(action.run);
+                }, false);
 
-            table.appendChild(makeElement('tr', [
-                makeElement('th', ""),
-                makeElement('td', actionItem)]));
+                table.appendChild(makeElement('tr', [
+                    makeElement('th', ""),
+                    makeElement('td', actionItem)]));
+            }
         }
     }
     //---END MOLGENIS CUSTOM CODE---
