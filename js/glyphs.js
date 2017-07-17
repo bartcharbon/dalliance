@@ -269,11 +269,13 @@ function LineGraphGlyph(points, color, height) {
 }
 
 LineGraphGlyph.prototype.min = function() {
-    return this.points[0];
+    return this.points[0].x;
+    // return this.points[0];
 };
 
 LineGraphGlyph.prototype.max = function() {
-    return this.points[this.points.length - 2];
+    return this.points[this.points.length - 1].x;
+    // return this.points[this.points.length - 2];
 };
 
 LineGraphGlyph.prototype.height = function() {
@@ -285,24 +287,21 @@ LineGraphGlyph.prototype.draw = function(g) {
     g.strokeStyle = this.color;
     g.lineWidth = 2;
     g.beginPath();
-    for (var i = 0; i < this.points.length; i += 2) {
-        var x = this.points[i];
-        var y = this.points[i + 1];
-        if (i == 0) {
-            g.moveTo(x, y);
-        } else {
-            g.lineTo(x, y);
-        }
-    }
+    this.points.forEach(function(p, i) {
+        if (i === 0)
+            g.moveTo(p.x, p.y);
+        else
+            g.lineTo(p.x, p.y);
+    });
     g.stroke();
     g.restore();
 }
 
 LineGraphGlyph.prototype.toSVG = function() {
     var p = new SVGPath();
-    for (var i = 0; i < this.points.length; i += 2) {
-        var x = this.points[i];
-        var y = this.points[i + 1];
+    for (let i = 0; i < this.points.length; ++i) {
+        var x = this.points[i].x;
+        var y = this.points[i].y;
         if (i == 0) {
             p.moveTo(x, y);
         } else {
@@ -1143,16 +1142,14 @@ AminoAcidGlyph.prototype.toSVG = function() {
     return g;
 };
 
-(function(scope) {
-
-var isRetina = window.devicePixelRatio > 1;
+var isRetina = typeof(window) !== 'undefined' && window.devicePixelRatio > 1;
 var __dalliance_SequenceGlyphCache = {};
 var altPattern = new RegExp('^[ACGT-]$');
 var isCloseUp = function(scale) {
     return scale >= 8;
 }
 
-function SequenceGlyph(baseColors, strandColor, min, max, height, seq, ref, scheme, quals, fillbg) {
+function SequenceGlyph(baseColors, strandColor, min, max, height, seq, ref, scheme, quals, fillbg, scaleVertical) {
     this.baseColors = baseColors;
     this._strandColor = strandColor;
     this._min = min;
@@ -1163,6 +1160,7 @@ function SequenceGlyph(baseColors, strandColor, min, max, height, seq, ref, sche
     this._scheme = scheme;
     this._quals = quals;
     this._fillbg = fillbg;
+    this._scaleVertical = scaleVertical;
 }
 
 SequenceGlyph.prototype.min = function() {return this._min};
@@ -1185,9 +1183,13 @@ SequenceGlyph.prototype.draw = function(gc) {
 
     if (mismatch && !isCloseUp(scale)) {
         gc.fillStyle = this._strandColor;
-        gc.fillRect(this._min, this._height/4, this._max - this._min, this._height/2);
+        if (this._scaleVertical)
+            gc.fillRect(this._min, scale, this._max - this._min, scale);
+        else
+            gc.fillRect(this._min, this._height/4, this._max - this._min, this._height/2);
     }
 
+    
     for (var p = 0; p < seqLength; ++p) {
         var base = seq ? seq.substr(p, 1).toUpperCase() : 'N';
         
@@ -1216,9 +1218,12 @@ SequenceGlyph.prototype.draw = function(gc) {
         gc.fillStyle = color;
 
         var alt = altPattern.test(base);
-        if (this._fillbg || !isCloseUp(scale) || !alt)
-            gc.fillRect(this._min + p*scale, 0, scale, this._height);
-
+        if (this._fillbg || !isCloseUp(scale) || !alt) {
+            if (this._scaleVertical)
+                gc.fillRect(this._min + p*scale, scale, scale, scale);
+            else
+                gc.fillRect(this._min + p*scale, 0, scale, this._height);
+        }
         if (isCloseUp(scale) && alt) {
             var key = color + '_' + base
             var img = __dalliance_SequenceGlyphCache[key];
@@ -1240,10 +1245,11 @@ SequenceGlyph.prototype.draw = function(gc) {
                 imgGc.fillText(base, 0.5 * (8.0 - w), 8);
                 __dalliance_SequenceGlyphCache[key] = img;
             }
+            var dy = this._scaleVertical ? scale : 0;
             if (isRetina)
-                gc.drawImage(img, this._min + p*scale + 0.5*(scale-8), 0, 8, 10);
+                gc.drawImage(img, this._min + p*scale + 0.5*(scale-8), dy, 8, 10);
             else
-                gc.drawImage(img, this._min + p*scale + 0.5*(scale-8), 0);
+                gc.drawImage(img, this._min + p*scale + 0.5*(scale-8), dy);
         } 
 
         if (this._quals) {
@@ -1306,10 +1312,6 @@ SequenceGlyph.prototype.toSVG = function() {
 
     return g;
 }
-
-scope.SequenceGlyph = SequenceGlyph;
-
-}(this));
 
 function TranslatedGlyph(glyph, x, y, height) {
     this.glyph = glyph;
@@ -1394,8 +1396,10 @@ PointGlyph.prototype.toSVG = function() {
 }
 
 
-function GridGlyph(height) {
+function GridGlyph(height, yOffset, spacing) {
     this._height = height || 50;
+    this.yOffset = yOffset || 0;
+    this.spacing = spacing || 10;
 }
 
 GridGlyph.prototype.notSelectable = true;
@@ -1418,7 +1422,8 @@ GridGlyph.prototype.draw = function(g) {
     g.lineWidth = 0.1;
 
     g.beginPath();
-    for (var y = 0; y <= this._height; y += 10) {
+    for (var y = this.yOffset; y <= this._height+this.yOffset; y += this.spacing) {
+    // for (var y = 0; y <= this._height; y += 10) {
         g.moveTo(-5000, y);
         g.lineTo(5000, y);
     }
@@ -1581,7 +1586,7 @@ if (typeof(module) !== 'undefined') {
         ArrowGlyph: ArrowGlyph,
         TooManyGlyph: TooManyGlyph,
         TextGlyph: TextGlyph,
-        SequenceGlyph: this.SequenceGlyph,
+        SequenceGlyph: SequenceGlyph,
         AminoAcidGlyph: AminoAcidGlyph,
         TranslatedGlyph: TranslatedGlyph,
         GridGlyph: GridGlyph,

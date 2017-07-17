@@ -19,7 +19,7 @@ if (typeof(require) !== 'undefined') {
     var connectTrix = require('./trix').connectTrix;
 }
 
-var REGION_PATTERN = /^([\d+,\w,\.,\_,\-]+):([0-9,\.]+?)([KkMmGg])?((-|\.\.)+([0-9,\.]+)([KkMmGg])?)?$/;
+var REGION_PATTERN = /^([\d+,\w,\.,\_,\-]+)[\s:]+([0-9,\.]+?)([KkMmGg])?((-|\.\.|\s)+([0-9,\.]+)([KkMmGg])?)?$/;
 
 function parseLocCardinal(n, m) {
     var i = parseFloat(n.replace(/,/g, ''));
@@ -106,7 +106,13 @@ Browser.prototype.search = function(g, statusCallback, opts) {
             return this.doDasSearch(thisB.searchEndpoint, g, searchCallback);
         }
 
-        for (var ti = 0; ti < this.tiers.length; ++ti) {
+
+        const searchSources = [
+            ...(this.searchOnlySourceHolders || []),
+            ...this.tiers
+        ];
+
+        for (var ti = 0; ti < searchSources.length; ++ti) {
             (function(tier) {
                 if (thisB.sourceAdapterIsCapable(tier.featureSource, 'search')) {
                     if (tier.dasSource.trixURI) {
@@ -114,7 +120,19 @@ Browser.prototype.search = function(g, statusCallback, opts) {
                         if (tier.trix) {
                             doTrixSearch(tier, tier.trix);
                         } else {
-                            connectTrix(new URLFetchable(tier.dasSource.trixURI), new URLFetchable(tier.dasSource.trixURI + 'x'), function(trix) {
+                            var ix = new URLFetchable(
+                                tier.dasSource.trixURI,
+                                {credentials: tier.dasSource.credentials,
+                                 resolver: tier.dasSource.resolver}
+                            );
+
+                            var ixx = new URLFetchable(
+                                tier.dasSource.trixxURI || (tier.dasSource.trixURI + 'x'),
+                                {credentials: tier.dasSource.credentials,
+                                 resolver: tier.dasSource.resolver}
+                            );
+
+                            connectTrix(ix, ixx, function(trix) {
                                 tier.trix = trix;
                                 doTrixSearch(tier, trix);
                             });
@@ -127,7 +145,7 @@ Browser.prototype.search = function(g, statusCallback, opts) {
                     ++searchCount;
                     thisB.doDasSearch(tier.dasSource, g, searchCallback);
                 }
-            })(this.tiers[ti]);
+            })(searchSources[ti]);
         }
     }
 }

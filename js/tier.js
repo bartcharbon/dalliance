@@ -31,6 +31,10 @@ if (typeof(require) !== 'undefined') {
 
     var sc = require('./sourcecompare');
     var sourceDataURI = sc.sourceDataURI;
+
+    var Promise = require('es6-promise').Promise;
+
+    var sortFeatures = require('./features').sortFeatures;
 }
 
 var __tier_idSeed = 0;
@@ -153,6 +157,7 @@ function DasTier(browser, source, config, background)
 
     this.listeners = [];
     this.featuresLoadedListeners = [];
+    this.firstRenderPromise = new Promise((resolve, reject) => this._resolveFirstRenderPromise = resolve);
 }
 
 DasTier.prototype.destroy = function() {
@@ -181,35 +186,36 @@ DasTier.prototype.addFeatureInfoPlugin = function(p) {
 
 DasTier.prototype.init = function() {
     var tier = this;
-
-    if (tier.dasSource.style) {
-        this.setStylesheet({styles: tier.dasSource.style});
-        this.browser.refreshTier(this);
-    } else {
-        tier.status = 'Fetching stylesheet';
-        tier.fetchStylesheet(function(ss, err) {
-            if (err || !ss) {
-                tier.error = 'No stylesheet';
-                var ss = new DASStylesheet();
-                var defStyle = new DASStyle();
-                defStyle.glyph = 'BOX';
-                defStyle.BGCOLOR = 'blue';
-                defStyle.FGCOLOR = 'black';
-                ss.pushStyle({type: 'default'}, null, defStyle);
-                tier.setStylesheet(ss);
-                tier.browser.refreshTier(tier);
-            } else {
-                tier.setStylesheet(ss);
-                if (ss.geneHint) {
-                    tier.dasSource.collapseSuperGroups = true;
-                    tier.bumped = false;
-                    tier.updateLabel();
+    return new Promise(function (resolve, reject) {
+        
+        if (tier.dasSource.style) {
+            tier.setStylesheet({styles: tier.dasSource.style});
+            resolve(tier);
+        } else {
+            tier.status = 'Fetching stylesheet';
+            tier.fetchStylesheet(function(ss, err) {
+                if (err || !ss) {
+                    tier.error = 'No stylesheet';
+                    var ss = new DASStylesheet();
+                    var defStyle = new DASStyle();
+                    defStyle.glyph = 'BOX';
+                    defStyle.BGCOLOR = 'blue';
+                    defStyle.FGCOLOR = 'black';
+                    ss.pushStyle({type: 'default'}, null, defStyle);
+                    tier.setStylesheet(ss);
+                } else {
+                    tier.setStylesheet(ss);
+                    if (ss.geneHint) {
+                        tier.dasSource.collapseSuperGroups = true;
+                        tier.bumped = false;
+                        tier.updateLabel();
+                    }
+                    tier._updateFromConfig();
                 }
-                tier._updateFromConfig();
-                tier.browser.refreshTier(tier);
-            }
-        });
-    }
+                resolve(tier);
+            });
+        }
+    });
 }
 
 DasTier.prototype.setStylesheet = function(ss) {
@@ -250,43 +256,42 @@ DasTier.prototype.getActiveStyleFilters = function(scale) {
     }
 }
 
-DasTier.prototype.needsSequence = function(scale ) {
+DasTier.prototype.needsSequence = function(scale) {
+    var sourceConfigNeedsSeq = function(s) {
+        if (s.bamURI || s.bamBlob || s.bwgURI || s.bwgBlob) {
+            return true;
+        } else if (s.overlay) {
+            return s.overlay.some(sourceConfigNeedsSeq);
+        } else {
+            return false;
+        }
+    }
+
     if (this.sequenceSource && scale < 5) {
         return true;
-    } else if ((this.dasSource.bamURI || this.dasSource.bamBlob || this.dasSource.bwgURI || this.dasSource.bwgBlob)
-                 && scale < 20) {
+    } else if (sourceConfigNeedsSeq(this.dasSource) && scale < 20) {
         return true
     }
     return false;
 }
 
-DasTier.prototype.viewFeatures = function(chr, coverage, scale, features, sequence) {
+DasTier.prototype.setFeatures = function(chr, coverage, scale, features, sequence) {
     this.currentFeatures = features;
-    this.currentSequence = sequence;
-    this.notifyFeaturesLoaded();
-    
+    this.currentSequence = sequence;    
     this.knownChr = chr;
     this.knownCoverage = coverage;
+    
 
-    if (this.status) {
-        this.status = null;
-        this._notifierToStatus();
+    // only notify features loaded, if they are valid
+    if (features) {
+        sortFeatures(this);
+        this.notifyFeaturesLoaded();
     }
-
-    this.draw();
 }
 
+
 DasTier.prototype.draw = function() {
-    var features = this.currentFeatures;
-    var seq = this.currentSequence;
-    if (this.sequenceSource) {
-        drawSeqTier(this, seq); 
-    } else {
-        drawFeatureTier(this);
-    }
-    this.paint();
-    this.originHaxx = 0;
-    this.browser.arrangeTiers();
+    console.log("Use browser.getTierRenderer(tier).drawTier(tier)");
 }
 
 DasTier.prototype.findNextFeature = function(chr, pos, dir, fedge, callback) {
@@ -627,7 +632,10 @@ DasTier.prototype.scheduleRedraw = function() {
 
     if (!this.redrawTimeout) {
         this.redrawTimeout = setTimeout(function() {
-            tier.draw();
+            sortFeatures(tier);   // Some render actions mutate the results of this,
+                                  // => need to re-run before refreshing.
+            var renderer = tier.browser.getTierRenderer(tier);
+            renderer.drawTier(tier);
             tier.redrawTimeout = null;
         }, 10);
     }
@@ -674,7 +682,6 @@ DasTier.prototype.removeFeaturesLoadedListener = function(handler) {
     }
 }
 
-
 DasTier.prototype.notifyFeaturesLoaded = function() {
     for (var li = 0; li < this.featuresLoadedListeners.length; ++li) {
         try {
@@ -685,6 +692,10 @@ DasTier.prototype.notifyFeaturesLoaded = function() {
     }
 }
 
+DasTier.prototype.wasRendered = function() {
+    this._resolveFirstRenderPromise();
+}
+
 if (typeof(module) !== 'undefined') {
     module.exports = {
         DasTier: DasTier
@@ -692,8 +703,4 @@ if (typeof(module) !== 'undefined') {
 
     // Imported for side effects
     var fd = require('./feature-draw');
-    var drawFeatureTier = fd.drawFeatureTier;
-    var sd = require('./sequence-draw');
-    var drawSeqTier = sd.drawSeqTier;
-    // require('./sourceadapters');  /* Done in cbrowser instead */
 }
