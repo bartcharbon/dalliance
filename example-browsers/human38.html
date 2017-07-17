@@ -21,59 +21,49 @@
 
         sources:
             [
-                            {
-                                name:                 'Genome',
-                           twoBitURI:            'http://www.biodalliance.org/datasets/hg38.2bit',
-                           tier_type: 'sequence'},
-                {
-                    name:                 'Genome reverse',
-                    twoBitURI:            'http://www.biodalliance.org/datasets/hg38.2bit?132',
-                    tier_type: 'sequence'}
-
-
-
-
+                            {   name:                 'Genome',
+                                twoBitURI:            'http://www.biodalliance.org/datasets/hg38.2bit',
+                                tier_type: 'sequence'
+                            },{
+                                name: 'GENCODE',
+                                desc: 'Gene structures from GENCODE 20',
+                                bwgURI: 'http://www.biodalliance.org/datasets/GRCh38/gencode.v20.annotation.bb',
+                                stylesheet_uri: 'http://www.biodalliance.org/stylesheets/gencode2.xml',
+                                collapseSuperGroups: true,
+                                trixURI: 'http://www.biodalliance.org/datasets/GRCh38/gencode.v20.annotation.ix'
+                            },{
+                                name: 'Repeats',
+                                desc: 'Repeat annotation from UCSC',
+                                bwgURI: 'http://www.biodalliance.org/datasets/GRCh38/repeats.bb',
+                                stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats2.xml'}
                           ,{
-                                    name: 'GENCODE',
-                                    desc: 'Gene structures from GENCODE 20',
-                                    bwgURI: 'http://www.biodalliance.org/datasets/GRCh38/gencode.v20.annotation.bb',
-                                    stylesheet_uri: 'http://www.biodalliance.org/stylesheets/gencode2.xml',
-                                   collapseSuperGroups: true,
-                                   trixURI: 'http://www.biodalliance.org/datasets/GRCh38/gencode.v20.annotation.ix'}
-
-                          ,{
-                            name: 'Repeats',
-                            desc: 'Repeat annotation from UCSC',
-                            bwgURI: 'http://www.biodalliance.org/datasets/GRCh38/repeats.bb',
-                            stylesheet_uri: 'http://www.biodalliance.org/stylesheets/bb-repeats2.xml'}
-                          ,{
-                            name: 'molgenis',
-                            uri: 'http://localhost:8080/api/v2/base_corner_cases_emx?',
-                            tier_type: 'molgenis',
-                            genome_attrs: {chr: "CHROM", pos: "POS", ref: "REF", alt: "ALT"},
-                            attrs: ["CHROM:Chromosome", "POS:Position", "REF:Ref allele", "ALT:Alt allele"],
-                            label_attr: "ALT",
-                            actions: "[{label:\"show entityreport\",run:\"alert('report' + feature.entity['#CHROM'])\"}, {label:\"filter on patient\",run:\"alert('filter' + feature.entity['POS'])\"}]",
-                        },  {
-                            name: 'molgenis cadd',
-                            uri: 'http://localhost:8080/api/v2/base_corner_cases_emx?123',
-                            tier_type: 'molgenis',
-                            genome_attrs: {chr: "CHROM", pos: "POS", ref: "REF", alt: "ALT"},
-                            attrs: ["CHROM:Chromosome", "POS:Position", "REF:Ref allele", "ALT:Alt allele", "CADD:CADD Score"],
-                            label_attr: "ALT",
-                            track_type: "numeric",
-                            score_attr: "CADD",
-                            actions: "[{label:\"show entityreport\",run:\"alert('report' + feature.entity['#CHROM'])\"}, {label:\"filter on patient\",run:\"alert('filter' + feature.entity['POS'])\"}]"
-                   },{
-                name: 'COL7A1 Exons',
-                uri: 'http://localhost:8080/api/v2/col7a1_Exons?',
-                tier_type: 'molgenis',
-                genome_attrs: {chr: "CHROM", pos: "End", stop: "Start"},
-                attrs: ["CHROM:Chromosome", "Start:Position", "End:Stop", "ExonIntron:Exon", "Nr:Exon number"],
-                label_attr: "Nr",
-                track_type: "exon",
-                exon_key: "Exon"
-            }
+                                name: 'molgenis',
+                                uri: 'http://localhost:8080/api/v2/base_corner_cases_emx?',
+                                tier_type: 'molgenis',
+                                genome_attrs: {chr: "CHROM", pos: "POS", ref: "REF", alt: "ALT"},
+                                attrs: ["CHROM:Chromosome", "POS:Position", "REF:Ref allele", "ALT:Alt allele"],
+                                label_attr: "ALT",
+                                actions: "[{label:\"show entityreport\",run:\"alert('report' + feature.entity['#CHROM'])\"}, {label:\"filter on patient\",run:\"alert('filter' + feature.entity['POS'])\"}]",
+                        },{
+                                name: 'molgenis cadd',
+                                uri: 'http://localhost:8080/api/v2/base_corner_cases_emx?123',
+                                tier_type: 'molgenis',
+                                genome_attrs: {chr: "CHROM", pos: "POS", ref: "REF", alt: "ALT"},
+                                attrs: ["CHROM:Chromosome", "POS:Position", "REF:Ref allele", "ALT:Alt allele", "CADD:CADD Score"],
+                                label_attr: "ALT",
+                                track_type: "numeric",
+                                score_attr: "CADD",
+                                actions: "[{label:\"show entityreport\",run:\"alert('report' + feature.entity['#CHROM'])\"}, {label:\"filter on patient\",run:\"alert('filter' + feature.entity['POS'])\"}]"
+                        },{
+                                name: 'COL7A1 Exons',
+                                uri: 'http://localhost:8080/api/v2/col7a1_Exons?',
+                                tier_type: 'molgenis',
+                                genome_attrs: {chr: "CHROM", pos: "End", stop: "Start"},
+                                attrs: ["CHROM:Chromosome", "Start:Position", "End:Stop", "ExonIntron:Exon", "Nr:Exon number"],
+                                label_attr: "Nr",
+                                track_type: "exon",
+                                exon_key: "Exon"
+                        }
 
         ],
     prefix: '../',
