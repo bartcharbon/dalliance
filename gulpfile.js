@@ -58,7 +58,7 @@ gulp.task('compile-main', function() {
   .pipe(closure({compilerPath: 'node_modules/closure-compiler/lib/vendor/compiler.jar', 
                  fileName: 'dalliance-all.js',
                  compilerFlags: {
-                    language_in: 'ECMASCRIPT5'
+                    language_in: 'ECMASCRIPT6'
                  }}))
   .pipe(gulp.dest('build/'));
 });
