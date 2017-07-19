@@ -166,17 +166,23 @@ MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, po
 
     var url = this.base;
 
-    var attributes = [];
+
     if (source.attrs) {
+        var attributes = [];
         for (var index = 0; index < source.attrs.length; ++index) {
             var attr = source.attrs[index];
             var attrArray = attr.split(":");
             attributes.push(attrArray[0]);
         }
+        if(attributes[source.genome_attrs.chr] === undefined) {
+            attributes.push(source.genome_attrs.chr);
+        }
+        if(attributes[source.genome_attrs.pos] === undefined) {
+            attributes.push(source.genome_attrs.pos);
+        }
         url += '&attrs=' + encodeURIComponent(attributes);
     }
 
-    //TODO:add optional query?
     if (source.genome_attrs.stop) {
         url += '&q=' + encodeURIComponent(source.genome_attrs.chr) + '==' + chr + ';(' + source.genome_attrs.pos + '=ge=' + min + ';' + source.genome_attrs.pos + '=le=' + max + ',' + source.genome_attrs.stop + '=ge=' + min + ';' + source.genome_attrs.stop + '=le=' + max + ')';
     } else {
@@ -247,7 +253,7 @@ MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, po
                         feature.notes = notes;
                     }
 
-                    if(source.track_type === "numeric") {
+                    if(source.track_type === "NUMERIC") {
                         feature.score = entity[source.score_attr];
                     }
 
@@ -273,11 +279,12 @@ function setStyleProperties(entity, feature, source) {
 
     var type = source.track_type;
     var altAttr = source.genome_attrs.alt;
-    if(type === "numeric"){
+    var refAttr = source.genome_attrs.ref;
+    if(type === "NUMERIC"){
         feature.type = "numeric";
         return;
     }
-    if(type === "exon") {
+    if(type === "EXON") {
         var labelAttr = source.label_attr;
         if (entity[labelAttr].search(source.exon_key) != -1) {
             feature.type = "exon";
@@ -290,8 +297,12 @@ function setStyleProperties(entity, feature, source) {
             return;
         }
     }
-    else if(altAttr) {
-        if (entity[altAttr] === 'A') {
+    else if(altAttr && refAttr) {
+        if (entity[altAttr].length > 1 || entity[refAttr].length > 1) {
+            feature.type = "indel";
+            return;
+        }
+        else if (entity[altAttr] === 'A') {
             feature.type = "variant";
             feature.method = "A";
             return;
@@ -314,10 +325,6 @@ function setStyleProperties(entity, feature, source) {
         else if (entity[altAttr].search(',') != -1) {
             feature.type = "variant";
             feature.method = "multiple";
-            return;
-        }
-        else if (entity[altAttr].length > 1 || entity.REF.length > 1) {
-            feature.type = "indel";
             return;
         }
         else {
