@@ -30,7 +30,7 @@ function MolgenisFeatureSource(source) {
         if (proto == 'http:' || proto == 'https:') {
             // Protocol-relative URLs okay.
         } else {
-            this.base = 'http:' + this.base;
+            this.base = window.location.protocol + this.base;
         }
     }
     this.species = source.species || 'human';
