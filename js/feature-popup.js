@@ -32,7 +32,7 @@ Browser.prototype.addFeatureInfoPlugin = function (handler) {
 function FeatureInfo(hit, feature, group) {
     var name = pick(group.type, feature.type);
     var fid = pick(group.label, feature.label, group.id, feature.id);
-    if (fid && fid.indexOf('__dazzle') != 0) {
+    if (!hit[0].molgenis && fid && fid.indexOf('__dazzle') != 0) {
         name = name + ': ' + fid;
     }
 
