@@ -24,15 +24,14 @@ if (typeof(require) !== 'undefined') {
 function MolgenisFeatureSource(source) {
     FeatureSourceBase.call(this);
     this.source = source;
-    this.base = source.uri || '//localhost:8080/api/v2/';
-    if (this.base.indexOf('//') === 0) {
-        var proto = window.location.protocol;
-        if (proto == 'http:' || proto == 'https:') {
-            // Protocol-relative URLs okay.
-        } else {
-            this.base = window.location.protocol + this.base;
-        }
+    if (source.uri) {
+      this.base = source.uri;
+    } else if (source.entity) {
+        this.base = window.location.origin + '/api/v2/' + source.entity + '?' + Math.random();
+    }else{
+        throw new Error("Bad molgenis track configuration: please specify 'genome_attrs.chr' and 'genome_attrs.pos'");
     }
+
     this.species = source.species || 'human';
 
     if (typeof source.type === 'string') {
@@ -116,7 +115,7 @@ MolgenisFeatureSource.prototype.getStyleSheet = function(callback) {
         wigStyle.BGCOLOR = 'blue'
         wigStyle.HEIGHT = 8;
         wigStyle.BUMP = true;
-        wigStyle.LABEL = true;
+        wigStyle.LABEL = false;
         wigStyle.ZINDEX = 20;
         stylesheet.pushStyle({type: 'default'}, null, wigStyle);
     }
@@ -179,6 +178,21 @@ MolgenisFeatureSource.prototype.fetch = function(chr, min, max, scale, types, po
         }
         if(attributes[source.genome_attrs.pos] === undefined) {
             attributes.push(source.genome_attrs.pos);
+        }
+        if(attributes[source.genome_attrs.alt] === undefined) {
+            if(source.genome_attrs.alt) {
+                attributes.push(source.genome_attrs.alt);
+            }
+        }
+        if(attributes[source.genome_attrs.ref] === undefined) {
+            if(source.genome_attrs.ref) {
+                attributes.push(source.genome_attrs.ref);
+            }
+        }
+        if(attributes[source.genome_attrs.stop] === undefined) {
+            if(source.genome_attrs.stop) {
+                attributes.push(source.genome_attrs.stop);
+            }
         }
         url += '&attrs=' + encodeURIComponent(attributes);
     }
@@ -297,7 +311,7 @@ function setStyleProperties(entity, feature, source) {
             return;
         }
     }
-    else if(altAttr && refAttr) {
+    else if(altAttr && entity[altAttr] && refAttr && entity[refAttr]) {
         if (entity[altAttr].length > 1 || entity[refAttr].length > 1) {
             feature.type = "indel";
             return;
