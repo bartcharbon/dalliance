@@ -7,6 +7,7 @@
 // exports.js: shim to export symbols into global namespace for ease of embedding
 //
 
+require('babel-polyfill');
 var browser = require('./cbrowser');
 var chainset = require('./chainset');
 var sa = require('./sourceadapters');
