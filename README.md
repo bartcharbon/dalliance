@@ -20,14 +20,13 @@ directly, but this is now deprecated and may not be supported in future.
 Before building, please install [Node.js](http://nodejs.org/), which
 is needed for the NPM package manager.
 
-To build:
+To build for use in MOLGENIS:
 
         (sudo?) npm install -g gulp
         npm install # Install dependencies
-        gulp        # Build Dalliance
-
-...then open any of the HTML files in the `example-browsers` directory
-to test.
+        gulp compile # Build Dalliance
+        rename dalliance-all.js in the /build folder to dalliance-all.min.js
+        copy dalliance-all.min.js to the src/main/resources/js folder in the data-explorer module in the MOLGENIS repo
 
 
 Documentation
